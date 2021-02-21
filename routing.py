@@ -1,12 +1,19 @@
 import csv
+import sys
 
 # globals
-DEBUG = True
+DEBUG = False
 topology = []
 nodesDict = {}
 
+# parsing the command line
+if len(sys.argv) < 2:
+    print("Usage: python3 routing.py <topology.csv>")
+    exit(0)
+fileName = sys.argv[1]
+
 # reading the csv file
-with open('topology-1.csv', newline='') as file:
+with open(fileName, newline='') as file:
      cvsReader = csv.reader(file, delimiter=',')
      for row in cvsReader:
          if DEBUG: print(row)
@@ -25,7 +32,7 @@ if DEBUG:
 
 D = {}
 N = []
-
+SP = {}
 # initializing step
 N.append(source)
 for n in range(1,len(nodesDict)+1):
@@ -33,9 +40,8 @@ for n in range(1,len(nodesDict)+1):
     w = topology[nodesDict[source]][0]
     v = topology[0][n]
     D[v] = cost
+    SP[v] = source
     if DEBUG: print("cost {} from {} to {}".format(cost,w,v))
-
-#del D[source]
 
 if DEBUG:
     print(('-'*30)+'STEP 0'+('-'*30))
@@ -46,7 +52,10 @@ if DEBUG:
 # Repeating step
 counter = 1
 while(counter < len(D)):
-    if DEBUG: print("#################### Step:{}, {} ####################".format(counter,source))
+    if DEBUG:
+        print('-'*30, end='') 
+        print('STEP {}'.format(counter), end='')
+        print('-'*30)
     
     temp_D = {key:val for key, val in D.items() if key not in N}
     if len(temp_D) > 0:
@@ -60,15 +69,24 @@ while(counter < len(D)):
         cost = topology[nodesDict[temp]][n]
         w = topology[nodesDict[temp]][0]
         v = topology[0][n]
+        previous = int(D[v])
+        new = int(D[w])+int(cost)
+        D[v] = min(previous,new)
         if DEBUG: 
             print("from {} to {} cost {}".format(w,v,cost))
-            print("current v={} with cost={}".format(v,D[v])) 
-        D[v] = min(int(D[v]),int(D[w])+int(cost))   
-        if DEBUG: print("updated v={} with cost={}".format(v,D[v]))
+            print("previous v={} with cost={}".format(v,previous)) 
+            print("updated v={} with cost={}".format(v,new))
         
+        if new < previous:
+            SP[v] = SP[w] + w
+            if DEBUG: print("CHANGED({}) {}".format(v,SP[v]))
+
     counter += 1
 
 print("Shortest path tree for node {}:".format(source))
-print(N)
+del SP[source]
+for node in SP:
+    print(node+': '+SP[node]+node+', ', end='')
+print('')
 print("Costs of the least-cost paths for node {}:".format(source))
-print(str(D))
+print(str(D).replace('{','').replace('}','').replace("'",""))
