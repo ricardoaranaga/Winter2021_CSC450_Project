@@ -5,17 +5,6 @@ DEBUG = True
 topology = []
 nodesDict = {}
 
-# functions
-def addMinToFinal():
-  for node in N:
-    if D.get(node) != None:
-        final[node] = D.pop(node, 'No Key found')
-        if DEBUG:
-            print(('-'*30)+'ADDMIN'+('-'*30))
-            print(final)
-            print(D)
-            print('-'*66)
-
 # reading the csv file
 with open('topology-1.csv', newline='') as file:
      cvsReader = csv.reader(file, delimiter=',')
@@ -36,7 +25,7 @@ if DEBUG:
 
 D = {}
 N = []
-final = {}
+sum = 0
 # initializing step
 N.append(source)
 for n in range(1,len(nodesDict)+1):
@@ -46,7 +35,7 @@ for n in range(1,len(nodesDict)+1):
     D[v] = cost
     if DEBUG: print("cost {} from {} to {}".format(cost,src,v))
 
-addMinToFinal()
+#del D[source]
 
 if DEBUG:
     print(('-'*30)+'STEP 0'+('-'*30))
@@ -55,42 +44,30 @@ if DEBUG:
     print('-'*66)
 
 # Repeating step
-while(len(nodesDict) > 0 ):
+counter = 1
+while(counter < len(D)):
     print("###################### Current source: {} ######################".format(source))
-    for n in range(1,len(topology[nodesDict[source]])):
-        if len(D) == 0:
-            print("#"*66)
-            break
-        cost = topology[nodesDict[source]][n]
-        src = topology[nodesDict[source]][0]
-        v = topology[0][n]
-        # ToDo: update cost here
-
-        # ####
-        if DEBUG: print("cost {} from {} to {}".format(cost,src,v))
-        print(D, len(D))
-        temp = min(D.values()) 
-        print("Minimum {}".format(temp))
-        res = [key for key in D if D[key] == temp]
-        if DEBUG: print("Keys with minimum values are: {}".format(res))
-        N.append(res[0])
-        print(N)
-
-        addMinToFinal()
+    
+    temp_D = {key:val for key, val in D.items() if key not in N}
+    if len(temp_D) > 0:
+        temp = min(temp_D, key=temp_D.get)
+        sum += int(D[temp])
+        print("Minimum={}, with={}, and a sum={}".format(temp,D[temp],sum))
+    
+    N.append(temp)
+    print(N)
 
     del nodesDict[source]
-    source = next(iter(nodesDict))
-    for n in range(1,len(nodesDict)+1):
+    source = temp
+
+    for n in range(1,len(D)+1):
         cost = topology[nodesDict[source]][n]
         src = topology[nodesDict[source]][0]
         v = topology[0][n]
-        D[v] = cost
+        print("current v={} with cost={}".format(v,D[v])) 
+        D[v] = min(int(D[v]),int(cost)+sum)   
+        print("updated v={} with cost={}".format(v,D[v]))
         if DEBUG: print("cost {} from {} to {}".format(cost,src,v))
+    counter += 1
 
-exit(0)
-
-
-
-
-
-
+print("RESULT \n{}\n{}".format(D,N))
