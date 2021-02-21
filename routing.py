@@ -25,15 +25,15 @@ if DEBUG:
 
 D = {}
 N = []
-sum = 0
+
 # initializing step
 N.append(source)
 for n in range(1,len(nodesDict)+1):
     cost = topology[nodesDict[source]][n]
-    src = topology[nodesDict[source]][0]
+    w = topology[nodesDict[source]][0]
     v = topology[0][n]
     D[v] = cost
-    if DEBUG: print("cost {} from {} to {}".format(cost,src,v))
+    if DEBUG: print("cost {} from {} to {}".format(cost,w,v))
 
 #del D[source]
 
@@ -46,28 +46,29 @@ if DEBUG:
 # Repeating step
 counter = 1
 while(counter < len(D)):
-    print("###################### Current source: {} ######################".format(source))
+    if DEBUG: print("#################### Step:{}, {} ####################".format(counter,source))
     
     temp_D = {key:val for key, val in D.items() if key not in N}
     if len(temp_D) > 0:
         temp = min(temp_D, key=temp_D.get)
-        sum += int(D[temp])
-        print("Minimum={}, with={}, and a sum={}".format(temp,D[temp],sum))
+        if DEBUG: print("Minimum={}, with={}".format(temp,D[temp]))
     
     N.append(temp)
-    print(N)
-
-    del nodesDict[source]
-    source = temp
+    if DEBUG: print(N)
 
     for n in range(1,len(D)+1):
-        cost = topology[nodesDict[source]][n]
-        src = topology[nodesDict[source]][0]
+        cost = topology[nodesDict[temp]][n]
+        w = topology[nodesDict[temp]][0]
         v = topology[0][n]
-        print("current v={} with cost={}".format(v,D[v])) 
-        D[v] = min(int(D[v]),int(cost)+sum)   
-        print("updated v={} with cost={}".format(v,D[v]))
-        if DEBUG: print("cost {} from {} to {}".format(cost,src,v))
+        if DEBUG: 
+            print("from {} to {} cost {}".format(w,v,cost))
+            print("current v={} with cost={}".format(v,D[v])) 
+        D[v] = min(int(D[v]),int(D[w])+int(cost))   
+        if DEBUG: print("updated v={} with cost={}".format(v,D[v]))
+        
     counter += 1
 
-print("RESULT \n{}\n{}".format(D,N))
+print("Shortest path tree for node {}:".format(source))
+print(N)
+print("Costs of the least-cost paths for node {}:".format(source))
+print(str(D))
