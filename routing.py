@@ -83,10 +83,15 @@ while(counter < len(D)):
 
     counter += 1
 
-print("Shortest path tree for node {}:".format(source))
+# building the shortest path string
 del SP[source]
+shortestPath = ""
 for node in SP:
-    print(node+': '+SP[node]+node+', ', end='')
-print('')
+    shortestPath += node+': '+SP[node]+node+', '
+shortestPath = shortestPath[:-2]
+
+# print resulting outputs
+print("Shortest path tree for node {}:".format(source))
+print(shortestPath)
 print("Costs of the least-cost paths for node {}:".format(source))
 print(str(D).replace('{','').replace('}','').replace("'",""))
