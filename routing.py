@@ -114,7 +114,7 @@ def dijkstra():
     del SP[source]
     shortestPath = ""
     for node in SP:
-        shortestPath += node+': '+SP[node]+node+', '
+        shortestPath += SP[node]+node+', '
     shortestPath = shortestPath[:-2]
 
     # print resulting outputs
